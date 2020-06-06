@@ -24,4 +24,4 @@ We also included NN class versions for 1 and 2 layer networks, you just need to 
 Keep in mind that our class uses only one core for transferring and learning!
 Here is comparison of times(in ms) of learning each type of network:
 ![average times](https://img.techpowerup.org/200606/chart7.png)
-The networks are as follows: one ,two and three layer, where three layer is shown for number of 98x64 and 64x48 neurons in hidden layers. 
+The networks are as follows: one ,two and three layer, where three layer is shown for number of 98x64 and 64x48 neurons in hidden layers. The 7500 is number of pixels in input picture.
