@@ -11,7 +11,7 @@ Both programs require OpenCV external library for image processing, which needs 
 
 Our interpretation of network efficiency is case of examples correctly guessed(highest output) on independent example set.
 AlphaDetect allows for creating time statistics of transfering and learning examples.
-It allows also for mass statistics of efficiency while learning by iteration.
+It allows also for mass statistics of efficiency while network is learning by iteration.
 Here is graph of two sessions of learning(for learning coeff. equal 0.2 and 0.05 for best result):
-[IMG]https://img.techpowerup.org/200606/chart8.png[/IMG]
+![mass statistics of network learning](https://img.techpowerup.org/200606/chart8.png)
 It shows efficiency for independent examples against iterations of 1000 examples. 
