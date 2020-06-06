@@ -1,4 +1,4 @@
-﻿#include<opencv2/opencv.hpp>
+#include<opencv2/opencv.hpp>
 #include<opencv2/imgproc/imgproc.hpp>
 #include<iostream>
 #include "NN.h"
@@ -68,9 +68,12 @@ void main()
 			}
 		}
 		else if (in_num == 2) {
+			int num;
+			cout << "Enter number of examples ot learn: ";
+			cin >> num;
 			for (int i = 0; i < 1; i++) {
 				cout << "Iteration: " << i << endl;
-				our_network.Learn_All(1000, beta, true);
+				our_network.Learn_All(num, beta, true);
 			}
 		}
 		else if (in_num == 3) {
@@ -99,13 +102,16 @@ void main()
 		else if (in_num == 6) {
 			double proc = 0.0;
 			string q;
+			int num;
 			cout << "Do you want to use in statistics original, independent examples(y), or the ones being taught(n)?";
 			cin >> q;
+			cout << "Number of examples to check: ";
+			cin >> num;
 			if (q == "y") {
-				proc = our_network.Statistics(beta, 1000, true);
+				proc = our_network.Statistics(beta, num, true);
 			}
 			else {
-				proc = our_network.Statistics(beta, 1000, false);
+				proc = our_network.Statistics(beta, num, false);
 			}
 			cout << "Efficiency of network is: " << proc << "%" << endl;
 		}
