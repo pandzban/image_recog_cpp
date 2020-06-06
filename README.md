@@ -15,3 +15,12 @@ It allows also for mass statistics of efficiency while network is learning by it
 Here is graph of two sessions of learning(for learning coeff. equal 0.2 and 0.05 for best result):
 ![mass statistics of network learning](https://img.techpowerup.org/200606/chart8.png)
 It shows efficiency for independent examples against iterations of 1000 examples. 
+
+With use of AlphaDetect we can also print wages of first hidden layer as jpeg pictures.
+Here are some of above, trained network:
+![wages](https://img.techpowerup.org/200606/trzy.png)
+
+We also included NN class versions for 1 and 2 layer networks, you just need to swap the .cpp files.
+Keep in mind that our class uses only one core for transferring and learning!
+Here is comparison of times of learning each type of network:
+![average times](https://img.techpowerup.org/200606/chart7.png)
