@@ -24,18 +24,12 @@ class NN {
 private:
 	vector <vector <double>> Picture;
 	vector <double> Input;
-	vector <double> Between;
-	vector <double> Between2;
 	vector <double> Output;
 	Mat Input_Img;
-	vector <vector<double>> Hidden_Wages; 
-	vector <vector<double>> Middle_Wages;
-	vector <vector<double>> Output_Wages; // Neurons x length(Input) for fully connected
+	vector <vector<double>> Wages; // Neurons x length(Input) for fully connected
 	int rows;
 	int cols;
 	int Num_of_Inputs; // sizeof(Input)
-	int Num_of_Hidden_Neurons;
-	int Num_of_Middle_Neurons;
 	int Num_of_Outputs;
 	double delta; // wsp. uczenia
 	int Output_Num;
@@ -78,7 +72,7 @@ public:
 	void Learn_All(int max, double beta, bool printx);
 	int Check(Mat* src, double beta, double prog);
 	void Save_Wages(void);
-	double Statistics(double beta, int max_iter);
+	double Statistics(double beta, int max_iter, bool original);
 	void Load_Wages();
 
 };

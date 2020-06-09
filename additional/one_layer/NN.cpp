@@ -8,16 +8,8 @@ map <int, string> Tags = { {0, "A"}, {1, "B"}, {2, "C"}, {3, "D"}, {4, "E"}, {5,
 NN::NN(string src_addr, double wsp_ucz) {
 	Mat src = imread(src_addr);
 	Num_of_Outputs = 26; // statycznie
-	Num_of_Hidden_Neurons = 98;
-	Num_of_Middle_Neurons = 64;
 	for (int i = 0; i < Num_of_Outputs; i++) {
 		Output.push_back(0.0);
-	}
-	for (int i = 0; i < Num_of_Middle_Neurons; i++) {
-		Between2.push_back(0.0);
-	}
-	for (int i = 0; i < Num_of_Hidden_Neurons; i++) {
-		Between.push_back(0.0);
 	}
 	delta = wsp_ucz;//0.1; // ew 0.02 albo 0.6
 	Output_Declared = false;
@@ -30,13 +22,16 @@ NN::NN(string src_addr, double wsp_ucz) {
 	vector <double> temp;
 	for (int i = 0; i < rows; i++) {
 		for (int k = 0; k < cols; k++) {
-			x = src.at<unsigned char>(i, 3*k);
+			x = src.at<unsigned char>(i, 3 * k);
 			xx = (double)(x);// int
-			temp.push_back(xx/255.0);
-			Input.push_back(xx/255.0);
+			temp.push_back(xx / 255.0);
+			Input.push_back(xx / 255.0);
 		}
 		Picture.push_back(temp);
 		temp.clear();
+	}
+	for (int i = 0; i < Num_of_Outputs; i++) {
+		Output.push_back(0.0);
 	}
 }
 
@@ -92,49 +87,17 @@ void NN::Print_Input() {
 	}
 }
 
-void NN::Print_Between() {
-	cout << "Hidden output: " << endl;
-	for (int i = 0; i < Num_of_Hidden_Neurons; i++) {
-		cout << Between[i] << " ";
-	}
-	cout << endl;
-}
-
-void NN::Print_Between2() {
-	cout << "Hidden output: " << endl;
-	for (int i = 0; i < Num_of_Middle_Neurons; i++) {
-		cout << Between2[i] << " ";
-	}
-	cout << endl;
-}
-
 void NN::Print_Output() {
-	cout << "Net output: " << endl;
 	for (int i = 0; i < Num_of_Outputs; i++) {
 		cout << Output[i] << " ";
 	}
 	cout << endl;
 }
 
-void NN::Print_Wages() {  ////////// zrobione
-	cout << "Hidden Layer Wages:" << endl;
-	for (int i = 0; i < Num_of_Hidden_Neurons; i++) {
-		for (int k = 0; k < Num_of_Inputs; k++) {
-			cout << Hidden_Wages[i][k] << " ";//static_cast<int>(Picture[i][k]) << " | ";  //static_cast<uint>(Picture[i][k]) << " ";
-		}
-		cout << endl;
-	}
-	cout << "Middle Layer Wages: " << endl;
-	for (int i = 0; i < Num_of_Middle_Neurons; i++) {
-		for (int k = 0; k < Num_of_Hidden_Neurons; k++) {
-			cout << Middle_Wages[i][k] << " ";//static_cast<int>(Picture[i][k]) << " | ";  //static_cast<uint>(Picture[i][k]) << " ";
-		}
-		cout << endl;
-	}
-	cout << "Output Wages:" << endl;
+void NN::Print_Wages() {
 	for (int i = 0; i < Num_of_Outputs; i++) {
-		for (int k = 0; k < Num_of_Middle_Neurons; k++) {
-			cout << Output_Wages[i][k] << " ";//static_cast<int>(Picture[i][k]) << " | ";  //static_cast<uint>(Picture[i][k]) << " ";
+		for (int k = 0; k < Num_of_Inputs; k++) {
+			cout << Wages[i][k] << " ";//static_cast<int>(Picture[i][k]) << " | ";  //static_cast<uint>(Picture[i][k]) << " ";
 		}
 		cout << endl;
 	}
@@ -142,11 +105,11 @@ void NN::Print_Wages() {  ////////// zrobione
 
 void NN::Print_Wages(int Neruon) { // dla jednego neurona
 	for (int i = 0; i < Num_of_Inputs; i++) {
-		cout << Hidden_Wages[Neruon][i] << " ";
+		cout << Wages[Neruon][i] << " ";
 	}
 	cout << endl;
-	cout << "Wages.size() " << Hidden_Wages.size() << endl;
-	cout << "Wages[0].size() " << Hidden_Wages[0].size() << endl;
+	cout << "Wages.size() " << Wages.size() << endl;
+	cout << "Wages[0].size() " << Wages[0].size() << endl;
 }
 
 void NN::Graphic_Wages(int Neruon) { // dla jednego neurona
@@ -156,7 +119,7 @@ void NN::Graphic_Wages(int Neruon) { // dla jednego neurona
 	vector <int> nowy;
 	for (int i = 0; i < Num_of_Inputs; i++) {
 		temp = 0;
-		temp = 255.0 * Hidden_Wages[Neruon][i];
+		temp = 255.0 * Wages[Neruon][i];
 		if (temp > 255) {
 			temp = 255;
 		}
@@ -210,7 +173,7 @@ void NN::Graphic_Input2() { // dla jednego neurona
 	Mat input2(100, 75, CV_8U, Scalar(0, 0, 0));
 	int temp;
 	vector <int> nowy;
-	for (int i = 0; i < rows; i++ ){
+	for (int i = 0; i < rows; i++) {
 		for (int k = 0; k < cols; k++) {
 			temp = 0;
 			temp = 255.0 * Picture[i][k];
@@ -284,15 +247,10 @@ bool NN::Load(string src_addr) {
 			Picture.push_back(temp);
 			temp.clear();
 		}
-		Between.clear();
-		for (int i = 0; i < Num_of_Hidden_Neurons; i++) {
-			Between.push_back(0.0);
-		}
 		Output.clear();
 		for (int i = 0; i < Num_of_Outputs; i++) {
 			Output.push_back(0.0);
 		}
-		Output_Declared = false;
 		return true;
 	}
 	return false;
@@ -322,15 +280,10 @@ bool NN::Load(Mat* src) {
 			Picture.push_back(temp);
 			temp.clear();
 		}
-		Between.clear();
-		for (int i = 0; i < Num_of_Hidden_Neurons; i++) {
-			Between.push_back(0.0);
-		}
 		Output.clear();
 		for (int i = 0; i < Num_of_Outputs; i++) {
 			Output.push_back(0.0);
 		}
-		Output_Declared = false;
 		return true;
 	}
 	return false;
@@ -346,42 +299,19 @@ void NN::Set_Guess_Output(int num) {
 	Guess_Check_Declared = true;
 }
 
-void NN::Random_Wages(){ // losowe wagi
-	vector <double> temp; 
+void NN::Random_Wages() {
+	vector <double> temp;
 	double temp_rand;
-	Hidden_Wages.clear();
-	Middle_Wages.clear();
-	Output_Wages.clear();
-	for (int i = 0; i < Num_of_Hidden_Neurons; i++) {
-		for (int k = 0; k < Num_of_Inputs; k++) {
-			temp_rand = rand() % 1000;
-			temp_rand -= 500;
-			temp_rand = (temp_rand * 0.0001);
-			temp.push_back(temp_rand);
-		}
-		Hidden_Wages.push_back(temp);
-		temp.clear();
-	}
-	for (int i = 0; i < Num_of_Middle_Neurons; i++) {
-		for (int k = 0; k < Num_of_Hidden_Neurons; k++) {
-			temp_rand = rand() % 1000;
-			temp_rand -= 500;
-			temp_rand = (temp_rand * 0.0001);
-			temp.push_back(temp_rand);
-		}
-		Middle_Wages.push_back(temp);
-		temp.clear();
-	}
 	for (int i = 0; i < Num_of_Outputs; i++) {
-		for (int k = 0; k < Num_of_Middle_Neurons; k++) {
-			temp_rand = rand() % 1000;
-			temp_rand -= 500;
-			temp_rand = (temp_rand * 0.0001);
+		for (int k = 0; k < Num_of_Inputs; k++) {
+			temp_rand = rand() % 100000;
+			temp_rand = (temp_rand * 0.000002) - 0.1;
 			temp.push_back(temp_rand);
 		}
-		Output_Wages.push_back(temp);
+		Wages.push_back(temp);
 		temp.clear();
 	}
+	cout << "Zrandomizowano" << endl;
 }
 
 void NN::Print_Matrix(vector<vector<double>>* src) {
@@ -456,50 +386,15 @@ bool NN::Vector_Add(vector<double>* dst, vector<double>* src, bool minus) {
 	return true;
 }
 
-bool NN::Matrix_Output_Wages_Add( vector<vector<double>>* src) {
-	int size = Output_Wages.size();
-	int size2 = Output_Wages[0].size();
-	if ((size2 == src->at(0).size()) && (size == src->size())) {
+bool NN::Matrix_Output_Wages_Add(vector<vector<double>>* src) {
+	if ((Wages[0].size() == src->at(0).size()) && (Wages.size() == src->size())) {
+		int size = Wages.size();
+		int size2 = Wages[0].size();
 		for (int i = 0; i < size; i++) {
 			for (int k = 0; k < size2; k++) {
-				Output_Wages[i][k] += src->at(i)[k];
+				Wages[i][k] += src->at(i)[k];
 			}
 		}
-	}
-	else {
-		cout << "ERROR" << endl;
-	}
-	return true;
-}
-
-bool NN::Matrix_Middle_Wages_Add(vector<vector<double>>* src) {
-	int size = Middle_Wages.size();
-	int size2 = Middle_Wages[0].size();
-	if ((size2 == src->at(0).size()) && (size == src->size())) {
-		for (int i = 0; i < size; i++) {
-			for (int k = 0; k < size2; k++) {
-				Middle_Wages[i][k] += src->at(i)[k];
-			}
-		}
-	}
-	else {
-		cout << "ERROR" << endl;
-	}
-	return true;
-}
-
-bool NN::Matrix_Hidden_Wages_Add(vector<vector<double>>* src) {
-	int size = Hidden_Wages.size();
-	int size2 = Hidden_Wages[0].size();
-	if ((size2 == src->at(0).size()) && (size == src->size())) {
-		for (int i = 0; i < size; i++) {
-			for (int k = 0; k < size2; k++) {
-				Hidden_Wages[i][k] += src->at(i)[k];
-			}
-		}
-	}
-	else {
-		cout << "ERROR" << endl;
 	}
 	return true;
 }
@@ -518,7 +413,6 @@ bool NN::Create_Matrix_from_Vector(vector<vector<double>>* dst, int rows, int co
 	}
 	return false;
 }
- 
 
 //double NN::Transfer(int output_num, double beta) {
 //	double temp = 0.0;
@@ -532,55 +426,32 @@ bool NN::Create_Matrix_from_Vector(vector<vector<double>>* dst, int rows, int co
 
 
 void NN::Save_Wages() {
+	string Address_Base = "C:/Projekt AI/Projekt_Snbasi/data/";
 	ofstream dst;
-	cout << "Zapisuje" << endl;
-	for (int i = 0; i < Num_of_Hidden_Neurons; i++) {       // zapis wag warstwy ukrytej
-		dst.open(addr_base_plus + "wages/wages" + to_string(i) + ".txt");
-		Sleep(2);
+	for (int i = 0; i < Num_of_Outputs; i++) {
+		dst.open(Address_Base + "wages/wages" + to_string(i) + ".txt");
+		Sleep(10);
 		while (!dst.is_open()) {}
 		if (dst.is_open()) {
-			for (int k = 0; k < rows * cols; k++) {
-				dst << Hidden_Wages[i][k] << endl;
+			for (int k = 0; k < cols * rows; k++) {
+				dst << Wages[i][k] << endl;
 			}
 		}
 		dst.close();
 	}
-	cout << "Zapisano wagi do: " << addr_base_plus + "wages/wages(num).txt" << endl;
-	for (int i = 0; i < Num_of_Middle_Neurons; i++) {                      // zapis wag warstwy wyjsciowej
-		dst.open(addr_base_plus + "wages/middle_wages" + to_string(i) + ".txt");
-		Sleep(2);
-		while (!dst.is_open()) {}
-		if (dst.is_open()) {
-			for (int k = 0; k < Num_of_Hidden_Neurons; k++) {
-				dst << Middle_Wages[i][k] << endl;
-			}
-		}
-		dst.close();
-	}
-	cout << "Zapisano wagi do: " << addr_base_plus + "wages/middle_wages(num).txt" << endl;
-	for (int i = 0; i < Num_of_Outputs; i++) {                      // zapis wag warstwy wyjsciowej
-		dst.open(addr_base_plus + "wages/output_wages" + to_string(i) + ".txt");
-		Sleep(2);
-		while (!dst.is_open()) {}
-		if (dst.is_open()) {
-				for (int k = 0; k < Num_of_Middle_Neurons; k++) {
-					dst << Output_Wages[i][k] << endl;
-				}
-		}
-		dst.close();
-	}
-	cout << "Zapisano wagi do: " << addr_base_plus + "wages/output_wages(num).txt" << endl;
+	cout << "Zapisano wagi do: " << Address_Base + "wages/wages(num).txt" << endl;
 }
 
 
 
 void NN::Load_Wages() {
+	string Address_Base = "C:/Projekt AI/Projekt_Snbasi/data/";
 	ifstream src;
-	for (int i = 0; i < Num_of_Hidden_Neurons; i++) {
-		src.open(addr_base_plus + "wages/wages" + to_string(i) + ".txt");
+	for (int i = 0; i < Num_of_Outputs; i++) {
+		src.open(Address_Base + "wages/wages" + to_string(i) + ".txt");
 		string temp;
 		double tempor;
-		Sleep(2);
+		Sleep(10);
 		while (!src.is_open()) {}
 		if (src.is_open()) {
 			for (int k = 0; k < cols * rows; k++) {
@@ -589,7 +460,7 @@ void NN::Load_Wages() {
 					break;
 				}
 				tempor = stod(temp);
-				Hidden_Wages[i][k] = tempor;
+				Wages[i][k] = tempor;
 			}
 			if (src.eof()) {
 				break;
@@ -597,51 +468,7 @@ void NN::Load_Wages() {
 		}
 		src.close();
 	}
-	cout << "Pobrano wagi z " << addr_base_plus + "wages/middle_wages(num).txt" << endl;
-	for (int i = 0; i < Num_of_Middle_Neurons; i++) {
-		src.open(addr_base_plus + "wages/middle_wages" + to_string(i) + ".txt");
-		string temp;
-		double tempor;
-		Sleep(2);
-		while (!src.is_open()) {}
-		if (src.is_open()) {
-			for (int k = 0; k < Num_of_Hidden_Neurons; k++) {
-				getline(src, temp);
-				if (src.eof()) {
-					break;
-				}
-				tempor = stod(temp);
-				Middle_Wages[i][k] = tempor;
-			}
-			if (src.eof()) {
-				break;
-			}
-		}
-		src.close();
-	}
-	cout << "Pobrano wagi z " << addr_base_plus + "wages/wages(num).txt" << endl;
-	for (int i = 0; i < Num_of_Outputs; i++) {
-		src.open(addr_base_plus + "wages/output_wages" + to_string(i) +".txt");
-		string temp;
-		double tempor;
-		Sleep(2);
-		while (!src.is_open()) {}
-		if (src.is_open()) {
-			for (int k = 0; k < Num_of_Middle_Neurons; k++) {
-				getline(src, temp);
-				if (src.eof()) {
-					break;
-				}
-				tempor = stod(temp);
-				Output_Wages[i][k] = tempor;
-			}
-			if (src.eof()) {
-				break;
-			}
-		}
-		src.close();
-	}
-	cout << "Pobrano wagi z " << addr_base_plus + "wages/output_wages(num).txt" << endl;
+	cout << "Pobrano wagi z " << Address_Base + "wages/wages(num).txt" << endl;
 }
 
 
@@ -653,26 +480,10 @@ inline double NN::Func(double temp, double beta) {
 
 void NN::Transfer(double beta) {
 	double temp;
-	for (int k = 0; k < Num_of_Hidden_Neurons; k++) {
-		temp = 0.0;
-		for (int i = 0; i < Input.size(); i++) {
-			temp += (Hidden_Wages[k][i] * Input[i]);
-		}
-		Between[k] = NN::Func(temp, beta);
-	}
-
-	for (int k = 0; k < Num_of_Middle_Neurons; k++) {
-		temp = 0.0;
-		for (int i = 0; i < Num_of_Hidden_Neurons; i++) {
-			temp += (Middle_Wages[k][i] * Between[i]);
-		}
-		Between2[k] = NN::Func(temp, beta);
-	}
-
 	for (int k = 0; k < Num_of_Outputs; k++) {
 		temp = 0.0;
-		for (int i = 0; i < Num_of_Middle_Neurons; i++) {
-			temp += (Output_Wages[k][i] * Between2[i]);
+		for (int i = 0; i < Num_of_Inputs; i++) {
+			temp += (Wages[k][i] * Input[i]);
 		}
 		Output[k] = NN::Func(temp, beta);
 	}
@@ -681,20 +492,16 @@ void NN::Transfer(double beta) {
 
 bool NN::Learn(double beta) {
 	vector<vector<double>> Wages_Modified;
-	vector<vector<double>> Wages_Modified1;
-	vector<vector<double>> Wages_Modified2;
 	double temp = 0.0;
 	double D = 0.0;
-	double D1 = 0.0;
 	double D2 = 0.0;
 	vector <double> dw;
 	Transfer(beta);
 	vector <double> Err;
-	vector <double> Err2;
 	for (int g = 0; g < Num_of_Outputs; g++) {
 		temp = 0.0;
 		D = 0.0;
-		dw = Between2; // wartosci przed ta warstwa
+		dw = Input; // wartosci przed ta warstwa
 		temp = Output[g]; // wyjscie tego neurona
 
 		if (g == Output_Num) {
@@ -704,56 +511,23 @@ bool NN::Learn(double beta) {
 			D = 0.0;
 		}
 		D = (D - temp);// * (1 - temp) * temp; 
-		Err.push_back(D);
-		D = D * (1 - temp) * temp * 2;
+		D = D * (1 - temp) * temp;
 		D = delta * D; // wsp. uczenia // delta * D;
 		NN::Scalar_Vect_Mul(&dw, D);
 		Wages_Modified.push_back(dw);
 		dw.clear();
-	} 
-	for (int g = 0; g < Num_of_Middle_Neurons; g++) {
-		temp = 0.0;
-		D1 = 0.0;
-		dw = Between;
-		temp = Between2[g];
-		for (int m = 0; m < Num_of_Outputs; m++) {
-			D1 += Output_Wages[m][g] * Err[m];
-		}
-		Err2.push_back(D1);
-		D1 = D1 * temp * (1 - temp) * 2;
-		D1 = delta * D1;
-		NN::Scalar_Vect_Mul(&dw, D1);
-		Wages_Modified1.push_back(dw);
-		dw.clear();
 	}
-	for (int g = 0; g < Num_of_Hidden_Neurons; g++) {
-		temp = 0.0;
-		D2 = 0.0;
-		dw = Input;
-		temp = Between[g];
-		for (int m = 0; m < Num_of_Middle_Neurons; m++) {
-			D2 += Middle_Wages[m][g] * Err2[m];
-		}
-		D2 = D2 *temp* (1 - temp) * 2;
-		D2 = delta * D2;
-		NN::Scalar_Vect_Mul(&dw, D2);
-		Wages_Modified2.push_back(dw);
-		dw.clear(); 
-	}
-	Err.clear();
-	Err2.clear();
 	NN::Matrix_Output_Wages_Add(&Wages_Modified);
 	Wages_Modified.clear();
-	NN::Matrix_Middle_Wages_Add(&Wages_Modified1);
-	Wages_Modified1.clear();
-	NN::Matrix_Hidden_Wages_Add(&Wages_Modified2);
-	Wages_Modified2.clear();
 	return true;
 }
 
 void NN::Learn_All(int max, double beta, bool printx) {
 	ifstream source;
 	source.open(addr_base + "data/saved.txt");
+	vector <double> timex;
+	double timex_sum;
+	double timex_diff;
 	Sleep(10);
 	while (!source.is_open()) {}
 	if (source.is_open()) {
@@ -793,7 +567,11 @@ void NN::Learn_All(int max, double beta, bool printx) {
 			G_Address = Address + index + "_" + number + ".jpg";
 			Load(G_Address);
 			Set_Output_Num(number_i);
+			auto start = chrono::system_clock::now();
 			Learn( beta );
+			auto end = chrono::system_clock::now();
+			chrono::duration<double> elapsed = end - start;
+			timex.push_back(elapsed.count());
 			if (printx && ((number_learned % 10) == 0)) {
 				cout << "\r" << "Przyklad: " << index;
 			}
@@ -801,15 +579,32 @@ void NN::Learn_All(int max, double beta, bool printx) {
 		}
 		source.close();
 		if (printx) {
-			cout << endl;
-			cout << "Nauczono " << number_learned << " przykladow!" << endl;
+			cout << "\r" << "Nauczono " << number_learned << " przykladow!" << endl;
+			timex_sum = 0.0;
+			for (int i = 0; i < timex.size(); i++) {
+				timex_sum += timex[i];
+			}
+			timex_sum /= timex.size();
+			timex_diff = 0.0;
+			for (int i = 0; i < timex.size(); i++) {
+				timex_diff += pow((timex[i] - timex_sum), 2);
+			}
+			timex_diff = sqrt(timex_diff/(timex.size()-1));
+			cout << "Sredni czas nauki jednego przykladu: " << timex_sum << "s, z odchyleniem standardowym: " << timex_diff <<"s." << endl;
+			timex.clear();
 		}
+		
 	}
 }
 
-double NN::Statistics(double beta, int max_iter) {
+double NN::Statistics(double beta, int max_iter, bool original) {
 	ifstream source;
-	source.open(addr_base + "data/saved.txt");
+	if (original == true) {
+		source.open(addr_base + "test/data/saved.txt");
+	}
+	else {
+		source.open(addr_base + "data/saved.txt");
+	}
 	Sleep(10);
 	while (!source.is_open()) {}
 	if (source.is_open()) {
@@ -819,9 +614,18 @@ double NN::Statistics(double beta, int max_iter) {
 		int trys = 0;
 		int hit = 0;
 		double statistic = 0;
+		vector <double> timex;
+		double timex_sum;
+		double timex_diff;
 		int index_i;
 		int number_i;
-		string Address = addr_base + "data/";
+		string Address;
+		if (original == true) {
+			Address = addr_base + "test/data/";
+		}
+		else {
+			Address = addr_base + "data/";
+		}
 		string G_Address;
 		cout << "Rozpoczynam statystyke!" << endl;
 		while(true){
@@ -853,7 +657,11 @@ double NN::Statistics(double beta, int max_iter) {
 			}
  			G_Address = Address + index + "_" + number + ".jpg";
 			Load(G_Address);
+			auto start = chrono::system_clock::now();
 			Transfer(beta);
+			auto end = chrono::system_clock::now();
+			chrono::duration<double> elapsed = end - start;
+			timex.push_back(elapsed.count());
 			double max = 0;
 			int max_idx = 9999;
 			for (int i = 0; i < Num_of_Outputs; i++) {
@@ -867,9 +675,21 @@ double NN::Statistics(double beta, int max_iter) {
 			}
 			trys++;
 		}
-		cout << endl;
+		cout << "\r" << "Sprawdzono " << trys << " przykladow!" << endl;
 		source.close();
 		statistic = (1.0 * hit) / (1.0 * trys) * 100.0;
+		timex_sum = 0.0;
+		for (int i = 0; i < timex.size(); i++) {
+			timex_sum += timex[i];
+		}
+		timex_sum /= timex.size();
+		timex_diff = 0.0;
+		for (int i = 0; i < timex.size(); i++) {
+			timex_diff += pow((timex[i] - timex_sum), 2);
+		}
+		timex_diff = sqrt(timex_diff / (timex.size() - 1));
+		cout << "Sredni czas jednego transferu przykladu przez siec to: " << timex_sum << "s, z odchyleniem standardowym: " << timex_diff << "s." << endl;
+		timex.clear();
 		return statistic;
 	}
 	return 999;
